@@ -3,3 +3,4 @@ A generic double linked directed graph where edges can carry information optimiz
 
 [![Build status](https://ci.appveyor.com/api/projects/status/0pldudidqyhhq3cn/branch/master?svg=true)](https://ci.appveyor.com/project/larsbuch/doublelinkeddirectedgraph/branch/master)
 
+![GitHub](https://img.shields.io/github/license/DevelApp-dk/DoubleLinkedDirectedGraph)
