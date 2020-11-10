@@ -111,6 +111,14 @@ namespace DoubleLinkedDirectedGraph
             ActiveOptions = options;
         }
 
+        public IEnumerable<string> AlreadyAddedNodeKeys
+        {
+            get
+            {
+                return nodes.Keys;
+            }
+        }
+
         /// <summary>
         /// Returns all the start nodes
         /// </summary>
