@@ -9,7 +9,8 @@
     <RepositoryUrl>https://github.com/DevelApp-dk/DoubleLinkedDirectedGraph</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <Authors>Lars Shakya Buch-Jepsen</Authors>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
