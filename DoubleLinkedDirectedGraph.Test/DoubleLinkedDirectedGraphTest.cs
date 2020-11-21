@@ -46,30 +46,30 @@ namespace DoubleLinkedDirectedGraph.Test
             (graph.End).Count().ShouldBe(4);
         }
 
-        //[Fact]
-        //public void GraphEndpointMatching_InsertFromStart_OptionsLocallyUnique()
-        //{
-        //    DoubleLinkedDirectedGraph<string, string> graph = new DoubleLinkedDirectedGraph<string, string>(new DoubleLinkedDirectedGraph<string, string>.Options() { TreatNodeKeysAsOnlyLocallyUnique = true });
-        //    graph.InsertFromStart("i").Insert("n").Insert("t");
-        //    graph.InsertFromStart("i").Insert("n").Insert("i");
-        //    graph.FinishGraph();
-        //    (graph.Start).Count().ShouldBe(1);
-        //    (graph.End).Count().ShouldBe(2);
-        //}
+        [Fact]
+        public void GraphEndpointMatching_InsertFromStart_OptionsLocallyUnique()
+        {
+            DoubleLinkedDirectedGraph<string, string> graph = new DoubleLinkedDirectedGraph<string, string>(new DoubleLinkedDirectedGraph<string, string>.Options() { TreatNodeKeysAsOnlyLocallyUnique = true });
+            graph.InsertFromStart("i").Insert("n").Insert("t").InsertEnd();
+            graph.InsertFromStart("i").Insert("n").Insert("i").InsertEnd();
+            graph.FinishGraph();
+            (graph.Start).Count().ShouldBe(1);
+            (graph.End).Count().ShouldBe(2);
+        }
 
-        //[Fact]
-        //public void GraphEndpointMatching_InsertWithExplicitEndPoint_OptionsLocallyUnique()
-        //{
-        //    DoubleLinkedDirectedGraph<string, string> graph = new DoubleLinkedDirectedGraph<string, string>();
-        //    graph.InsertFromStart("projection1").Insert("projection2").InsertEnd();
-        //    graph.InsertFromStart("projection1").Insert("projection3").InsertEnd();
-        //    graph.InsertFromStart("projection2").Insert("projection3").InsertEnd();
-        //    graph.InsertFromStart("projection1").InsertEnd();
-        //    graph.FinishGraph();
-        //    (graph.Start).Count().ShouldBe(2);
-        //    (graph.Start).First().NextEdges.Values.Count().ShouldBe(3);
-        //    (graph.Start).Skip(1).First().NextEdges.Values.Count().ShouldBe(1);
-        //    (graph.End).Count().ShouldBe(3);
-        //}
+        [Fact]
+        public void GraphEndpointMatching_InsertWithExplicitEndPoint_OptionsLocallyUnique()
+        {
+            DoubleLinkedDirectedGraph<string, string> graph = new DoubleLinkedDirectedGraph<string, string>(new DoubleLinkedDirectedGraph<string, string>.Options() { TreatNodeKeysAsOnlyLocallyUnique = true });
+            graph.InsertFromStart("projection1").Insert("projection2").InsertEnd();
+            graph.InsertFromStart("projection1").Insert("projection3").InsertEnd();
+            graph.InsertFromStart("projection2").Insert("projection3").InsertEnd();
+            graph.InsertFromStart("projection1").InsertEnd();
+            graph.FinishGraph();
+            (graph.Start).Count().ShouldBe(1);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection1")).NextEdges.Values.Count().ShouldBe(3);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection2")).NextEdges.Values.Count().ShouldBe(1);
+            (graph.End).Count().ShouldBe(4);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DoubleLinkedDirectedGraph
@@ -16,23 +17,57 @@ namespace DoubleLinkedDirectedGraph
         public static readonly string END_NODE_KEY = "END";
         private Dictionary<string, Node> nodes = new Dictionary<string, Node>();
         private bool graphLocked = false;
+        private Node _startNode;
+        private Node _endNode;
 
         /// <summary>
         /// Gets existing or creates a new node with the key. Enforces nodeKey naming
         /// </summary>
         /// <param name="nodeKey"></param>
+        /// <param name="previousNode"></param>
         /// <returns></returns>
-        internal Node GetNode(string nodeKey)
+        internal Node GetNode(string nodeKey, Node previousNode = null)
         {
             string correctedNodeKey = EnforceNodeKeyNamingRule(nodeKey);
-            if (nodes.ContainsKey(correctedNodeKey))
+            if (correctedNodeKey.Equals(START_NODE_KEY))
+            {
+                if (_startNode == null)
+                {
+                    _startNode = new Node(this, correctedNodeKey);
+                    if (!ActiveOptions.TreatNodeKeysAsOnlyLocallyUnique)
+                    {
+                        nodes.Add(_startNode.NodeKey, _startNode);
+                    }
+                }
+                return _startNode;
+            }
+            if (correctedNodeKey.Equals(END_NODE_KEY))
+            {
+                if (_endNode == null)
+                {
+                    _endNode = new Node(this, correctedNodeKey);
+                    if (!ActiveOptions.TreatNodeKeysAsOnlyLocallyUnique)
+                    {
+                        nodes.Add(_endNode.NodeKey, _endNode);
+                    }
+                }
+                return _endNode;
+            }
+            else if (nodes.ContainsKey(correctedNodeKey) && !ActiveOptions.TreatNodeKeysAsOnlyLocallyUnique)
             {
                 return nodes[correctedNodeKey];
             }
+            else if (previousNode.NextEdges.Any(e => e.Value.ToNode.NodeKey.Equals(correctedNodeKey)) && ActiveOptions.TreatNodeKeysAsOnlyLocallyUnique && previousNode != null)
+            {
+                return previousNode.NextEdges.Single(e1 => e1.Value.ToNode.NodeKey.Equals(correctedNodeKey)).Value.ToNode;
+            }
             else
             {
-                Node node = new Node(this,correctedNodeKey);
-                nodes.Add(node.NodeKey, node);
+                Node node = new Node(this, correctedNodeKey);
+                if (!ActiveOptions.TreatNodeKeysAsOnlyLocallyUnique)
+                {
+                    nodes.Add(node.NodeKey, node);
+                }
                 return node;
             }
         }
@@ -40,8 +75,8 @@ namespace DoubleLinkedDirectedGraph
         /// <summary>
         /// Returns the start node of the graph
         /// </summary>
-        private Node StartNode
-        {
+        private Node StartNode 
+        { 
             get
             {
                 return GetNode(START_NODE_KEY);
@@ -51,8 +86,8 @@ namespace DoubleLinkedDirectedGraph
         /// <summary>
         /// Returns the end node of the graph
         /// </summary>
-        private Node EndNode
-        {
+        private Node EndNode 
+        { 
             get
             {
                 return GetNode(END_NODE_KEY);
@@ -181,7 +216,29 @@ namespace DoubleLinkedDirectedGraph
             {
                 throw new DoubleLinkedDirectedGraphException("Graph is finished either by call to FinishGraph or implicitly by using End");
             }
+            if(ActiveOptions.TreatNodeKeysAsOnlyLocallyUnique)
+            {
+                throw new DoubleLinkedDirectedGraphException("Function \"Insert(string fromNodeKey, ...\" cannot be used with the option TreatNodeKeysAsOnlyLocallyUnique");
+            }
             Node fromNode = GetNode(fromNodeKey);
+            return fromNode.Insert(newNodeKey, edgeDescription, nodeData, edgeData);
+        }
+
+        /// <summary>
+        /// NodeKeys are unique in the graph and edgekey is unique in the scope of the from and to nodes.
+        /// </summary>
+        /// <param name="fromNode"></param>
+        /// <param name="newNodeKey"></param>
+        /// <param name="edgeDescription"></param>
+        /// <param name="nodeData"></param>
+        /// <param name="edgeData"></param>
+        /// <returns></returns>
+        public Node Insert(Node fromNode, string newNodeKey, string edgeDescription = "", NodeData nodeData = default, EdgeData edgeData = default)
+        {
+            if (graphLocked)
+            {
+                throw new DoubleLinkedDirectedGraphException("Graph is finished either by call to FinishGraph or implicitly by using End");
+            }
             return fromNode.Insert(newNodeKey, edgeDescription, nodeData, edgeData);
         }
 
@@ -234,7 +291,7 @@ namespace DoubleLinkedDirectedGraph
                 {
                     throw new DoubleLinkedDirectedGraphException("Graph is finished either by call to FinishGraph or implicitly by using End");
                 }
-                Node newNode = _parent.GetNode(newNodeKey);
+                Node newNode = _parent.GetNode(newNodeKey, this);
                 newNode.NodeData = nodeData;
                 GetEdge(this, newNode, edgeDescription, edgeData);
                 return newNode;
