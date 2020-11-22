@@ -53,8 +53,18 @@ namespace DoubleLinkedDirectedGraph.Test
             graph.InsertFromStart("i").Insert("n").Insert("t").InsertEnd();
             graph.InsertFromStart("i").Insert("n").Insert("i").InsertEnd();
             graph.FinishGraph();
-            (graph.Start).Count().ShouldBe(1);
-            (graph.End).Count().ShouldBe(2);
+            graph.Start.Count().ShouldBe(1);
+            graph.Start.First().NodeKey.ShouldBe("i");
+            graph.Start.First().NextEdges.Count().ShouldBe(1);
+            graph.Start.First().NextEdges.First().Value.ToNode.NodeKey.ShouldBe("n");
+            graph.Start.First().NextEdges.First().Value.ToNode.NextEdges.Count().ShouldBe(2);
+            Should.Throw<DoubleLinkedDirectedGraphException>(() => graph.Start.First().WalkEdge("i"));
+            graph.Start.First().WalkEdge("n").NodeKey.ShouldBe("n");
+            graph.Start.First().WalkEdge("n").NextEdges.Count().ShouldBe(2);
+            graph.Start.First().WalkEdge("n").WalkEdge("t").NextEdges.Count().ShouldBe(1);
+            graph.Start.First().WalkEdge("n").WalkEdge("t").WalkEdge(DoubleLinkedDirectedGraph<string, string>.END_NODE_KEY);
+            graph.Start.First().WalkEdge("n").WalkEdge("i").NextEdges.Count().ShouldBe(1);
+            graph.Start.First().WalkEdge("n").WalkEdge("i").WalkEdge(DoubleLinkedDirectedGraph<string, string>.END_NODE_KEY);
         }
 
         [Fact]
@@ -66,10 +76,15 @@ namespace DoubleLinkedDirectedGraph.Test
             graph.InsertFromStart("projection2").Insert("projection3").InsertEnd();
             graph.InsertFromStart("projection1").InsertEnd();
             graph.FinishGraph();
-            (graph.Start).Count().ShouldBe(1);
+            (graph.Start).Count().ShouldBe(2);
             (graph.Start).Single(n => n.NodeKey.Equals("projection1")).NextEdges.Values.Count().ShouldBe(3);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection1")).WalkEdge("projection2").NextEdges.Values.Count().ShouldBe(1);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection1")).WalkEdge("projection3").NextEdges.Values.Count().ShouldBe(1);
             (graph.Start).Single(n => n.NodeKey.Equals("projection2")).NextEdges.Values.Count().ShouldBe(1);
-            (graph.End).Count().ShouldBe(4);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection1")).WalkEdge("projection2").WalkEdge(DoubleLinkedDirectedGraph<string, string>.END_NODE_KEY);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection1")).WalkEdge("projection3").WalkEdge(DoubleLinkedDirectedGraph<string, string>.END_NODE_KEY);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection2")).WalkEdge("projection3").WalkEdge(DoubleLinkedDirectedGraph<string, string>.END_NODE_KEY);
+            (graph.Start).Single(n => n.NodeKey.Equals("projection1")).WalkEdge(DoubleLinkedDirectedGraph<string, string>.END_NODE_KEY);
         }
     }
 }
